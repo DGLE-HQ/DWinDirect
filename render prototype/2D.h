@@ -88,6 +88,7 @@ protected:
 	DirectX::ComPtrs::ID3DX11EffectPtr _effect2D;
 private:
 	DirectX::ComPtrs::ID3D11InputLayoutPtr _quadLayout;
+	DirectX::ComPtrs::ID3D11QueryPtr query;
 	ID3DX11EffectPass *_rectPass, *_ellipsePass, *_ellipseAAPass;
 
 	// immediate 2D

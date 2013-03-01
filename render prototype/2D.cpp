@@ -1,6 +1,6 @@
 /**
 \author		Alexey Shaydurov aka ASH
-\date		7.2.2013 (c)Korotkov Andrey
+\date		12.2.2013 (c)Korotkov Andrey
 
 This file is a part of DGLE2 project and is distributed
 under the terms of the GNU Lesser General Public License.
@@ -85,8 +85,11 @@ C2D::C2D(const DXGI_MODE_DESC &modeDesc, bool multithreaded):
 	D3D11_BUFFER_DESC desc = {sizeof(TQuad) * _VBSize, D3D11_USAGE_DYNAMIC, D3D11_BIND_VERTEX_BUFFER, D3D11_CPU_ACCESS_WRITE, 0, 0};
 	ASSERT_HR(_device->CreateBuffer(&desc, NULL, &_VB))
 	D3D11_MAPPED_SUBRESOURCE mapped;
-	_immediateContext->Map(_VB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+	ASSERT_HR(_immediateContext->Map(_VB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))
 	_mappedVB = reinterpret_cast<TQuad *>(mapped.pData);
+	//temp
+	const D3D11_QUERY_DESC query_desc = {D3D11_QUERY_OCCLUSION, 0};
+	ASSERT_HR(_device->CreateQuery(&query_desc, &query))
 }
 
 #pragma region(immediate)
@@ -114,7 +117,7 @@ void C2D::DrawRect(float x, float y, float width, float height, uint32 color, In
 		_immediateContext->Map(_VB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 		_mappedVB = reinterpret_cast<TQuad *>(mapped.pData);
 	}
-	*_mappedVB++ = TQuad(x, y, width, height, _curLayer, angle, color);
+	*_mappedVB++ = TQuad(x, y, width, height, _curLayer-1, angle, color);
 	//new(_mappedVB++) TQuad(x, y, width, height, _curLayer, angle, color);
 	_VCount++;
 	_count++;
@@ -282,6 +285,7 @@ void C2D::_NextFrame() const
 {
 	// immediate 2D
 	_immediateContext->Unmap(_VB, 0);
+		_immediateContext->Begin(query);
 	if (_VCount)
 	{
 		_immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -292,10 +296,13 @@ void C2D::_NextFrame() const
 		_immediateContext->Draw(_VCount, _VBStart);
 		_VBStart = _VCount = 0;
 	}
+		_immediateContext->End(query);
+		UINT64 pixels;
+		while (_immediateContext->GetData(query, &pixels, sizeof pixels, 0) != S_OK);
 	if (_VBSize < _count)
 	{
 		D3D11_BUFFER_DESC desc = {sizeof(TQuad) * (_VBSize = _count), D3D11_USAGE_DYNAMIC, D3D11_BIND_VERTEX_BUFFER, D3D11_CPU_ACCESS_WRITE, 0, 0};
-		ASSERT_HR(_device->CreateBuffer(&desc, NULL, &_VB.GetInterfacePtr()))
+		ASSERT_HR(_device->CreateBuffer(&desc, NULL, &_VB))
 	}
 	D3D11_MAPPED_SUBRESOURCE mapped;
 	ASSERT_HR(_immediateContext->Map(_VB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))

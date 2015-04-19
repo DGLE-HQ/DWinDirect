@@ -1,0 +1,19 @@
+desktop.ini
+log.txt
+bin/
+dgle/
+
+# Visual Studio
+*.suo
+*.user
+*.sln.docstates
+[Dd]ebug/
+[Rr]elease/
+*.ilk
+*.lib
+*.exp
+*.pdb
+ipch/
+*.aps
+*.sdf
+*.opensdf

@@ -18,3 +18,4 @@ ipch/
 *.sdf
 *.opensdf
 *.opendb
+*.VC.db

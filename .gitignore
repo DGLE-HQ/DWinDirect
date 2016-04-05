@@ -17,3 +17,5 @@ ipch/
 *.aps
 *.sdf
 *.opensdf
+*.opendb
+*.VC.db

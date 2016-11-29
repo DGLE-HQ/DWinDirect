@@ -9,6 +9,8 @@ dgle/
 *.sln.docstates
 [Dd]ebug/
 [Rr]elease/
+[Dd]ebug clang/
+[Rr]elease clang/
 *.ilk
 *.lib
 *.exp
